@@ -1,0 +1,33 @@
+name: plant_ai
+description: "CardamomAI - AI-assisted cardamom disease detection app."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  lottie: ^3.3.0
+  image_picker: ^1.1.2
+  cupertino_icons: ^1.0.8
+  camera: ^0.11.2+1
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
+  tflite_flutter: ^0.12.1
+  image: ^4.0.17
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/model/
