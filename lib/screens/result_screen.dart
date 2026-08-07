@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:plant_ai/data/diseases_data.dart';
 import 'package:plant_ai/models/disease.dart';
 import 'package:plant_ai/models/scan_result.dart';
@@ -26,6 +29,45 @@ class ResultScreen extends StatelessWidget {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
+  Future<void> _shareResult(BuildContext context) async {
+    final buffer = StringBuffer()
+      ..writeln('CardamomAI scan result')
+      ..writeln(result.diseaseName)
+      ..writeln();
+    if (!result.isInconclusive) {
+      buffer.writeln('Confidence: ${result.confidencePercent}');
+      buffer.writeln('Severity: ${result.severity.label}');
+      buffer.writeln();
+    }
+    if (result.symptoms.isNotEmpty) {
+      buffer.writeln('Symptoms observed:');
+      for (final s in result.symptoms) {
+        buffer.writeln('- $s');
+      }
+      buffer.writeln();
+    }
+    if (result.recommendations.isNotEmpty) {
+      buffer.writeln('Recommendations:');
+      for (final r in result.recommendations) {
+        buffer.writeln('- $r');
+      }
+      buffer.writeln();
+    }
+    buffer.write(
+      result.isSimulated
+          ? 'Simulated preview result from CardamomAI.'
+          : 'Uses a general plant-disease model, not cardamom-specific — treat as a helpful pointer, not a confirmed diagnosis.',
+    );
+
+    await SharePlus.instance.share(
+      ShareParams(
+        text: buffer.toString(),
+        subject: 'CardamomAI scan: ${result.diseaseName}',
+        files: kIsWeb ? null : [XFile(result.imagePath)],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsController>();
@@ -35,6 +77,13 @@ class ResultScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Result', style: TextStyle(fontWeight: FontWeight.w800)),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            tooltip: 'Share result',
+            onPressed: () => _shareResult(context),
+            icon: const Icon(Icons.share_rounded),
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(

@@ -1,25 +1,24 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// PLACEHOLDER — this file is meant to be replaced automatically.
+/// Android values below are pulled directly from
+/// `android/app/google-services.json` (project `cardamomai`), which is
+/// already real. That file and this one MUST describe the same
+/// Firebase project — if they don't, the native Android SDK
+/// auto-initializes the default app from `google-services.json` at
+/// process start, and then Dart's `Firebase.initializeApp()` call
+/// with different options throws
+/// `[core/duplicate-app] A Firebase App named "[DEFAULT]" already
+/// exists`. That exception has been known to crash the app before the
+/// first frame even renders, rather than being reliably caught by the
+/// try/catch in `main.dart` — this was the app's actual startup
+/// crash. Keep these two files in sync.
 ///
-/// Run this once from your project root, after completing the
-/// Firebase Console steps (creating a project, enabling Google +
-/// Phone sign-in):
-///
-///   dart pub global activate flutterfire_cli
-///   flutterfire configure
-///
-/// That command overwrites this entire file with your project's real
-/// values and also drops `google-services.json` /
-/// `GoogleService-Info.plist` into the right native folders — you
-/// don't edit any of that by hand.
-///
-/// Until you run it, the placeholder values below are intentionally
-/// invalid. `main.dart` wraps `Firebase.initializeApp()` in a
-/// try/catch specifically so this doesn't crash the app — sign-in
-/// will just report itself unavailable, while scanning, the library,
-/// history, and everything else keeps working normally.
+/// iOS/web are still unconfigured placeholders — no
+/// `GoogleService-Info.plist` exists yet. Run `flutterfire configure`
+/// to fill those in once you're ready to support iOS/web sign-in;
+/// until then `main.dart`'s try/catch correctly no-ops Firebase on
+/// those platforms.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -43,10 +42,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'REPLACE_ME',
-    appId: 'REPLACE_ME',
-    messagingSenderId: 'REPLACE_ME',
-    projectId: 'REPLACE_ME',
+    apiKey: 'AIzaSyAMFdg8buB6lvfBX_oVRZmguWrUtGc32QI',
+    appId: '1:707951057817:android:3c92b62816907aa8805108',
+    messagingSenderId: '707951057817',
+    projectId: 'cardamomai',
+    storageBucket: 'cardamomai.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

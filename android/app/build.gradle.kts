@@ -18,8 +18,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.plant_ai"
-        // Firebase Auth requires minSdk 23 or higher.
-        minSdk = flutter.minSdkVersion
+        // Firebase Auth's Android AAR declares minSdkVersion 23 in its own
+        // manifest. Gradle's manifest merger hard-fails the build if the
+        // app's effective minSdk is lower, so this must be pinned explicitly
+        // rather than left at Flutter's own default (currently lower).
+        minSdk = maxOf(flutter.minSdkVersion, 23)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
