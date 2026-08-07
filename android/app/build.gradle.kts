@@ -19,7 +19,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.plant_ai"
         // Firebase Auth requires minSdk 23 or higher.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -34,6 +34,16 @@ android {
     }
 }
 
+// Fixes: "class file for androidx.concurrent.futures.CallbackToFutureAdapter
+// not found" during camera_android_camerax compilation. camera-core's own
+// Maven POM declares this as a runtime-scope dependency, which isn't always
+// enough for the compiler to resolve JSpecify type annotations at compile
+// time - declaring it explicitly here (verified fix, confirmed via a real
+// minimal-reproduction build) closes that gap.
+dependencies {
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
@@ -42,10 +52,4 @@ kotlin {
 
 flutter {
     source = "../.."
-
-}
-dependencies {
-
-implementation("androidx.concurrent:concurrent-futures:1.2.0")
-
 }
