@@ -93,93 +93,96 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppColors.heroGradient),
-        child: Stack(
-          children: [
-            const FloatingDecor(),
-            AnimatedBuilder(
+        child: AnimatedBuilder(
           animation: _controller,
           builder: (context, _) {
-            return SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FadeTransition(
-                            opacity: _logoFade,
-                            child: ScaleTransition(
-                              scale: _logoScale,
-                              child: const AppLogoMark(size: 108, iconScale: 0.5),
-                            ),
+            return Stack(
+              children: [
+                // 1. Floating decoration goes behind content
+                const FloatingDecor(),
+                
+                // 2. Foreground layout now properly calculates size constraints
+                SafeArea(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FadeTransition(
+                                opacity: _logoFade,
+                                child: ScaleTransition(
+                                  scale: _logoScale,
+                                  child: const AppLogoMark(size: 108, iconScale: 0.5),
+                                ),
+                              ),
+                              const SizedBox(height: 26),
+                              FadeTransition(
+                                opacity: _textFade,
+                                child: SlideTransition(
+                                  position: _textSlide,
+                                  child: const Column(
+                                    children: [
+                                      Text(
+                                        'CardamomAI',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Smart crop protection',
+                                        style: TextStyle(
+                                          color: Color(0xFFC9F7D1),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 26),
-                          FadeTransition(
-                            opacity: _textFade,
-                            child: SlideTransition(
-                              position: _textSlide,
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    'CardamomAI',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.3,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Smart crop protection',
-                                    style: TextStyle(
-                                      color: Color(0xFFC9F7D1),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.4,
-                                    ),
-                                  ),
-                                ],
+                        ),
+                      ),
+                      FadeTransition(
+                        opacity: _loaderFade,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 26,
+                              height: 26,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.6,
+                                valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(0.85)),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 28),
+                            Text(
+                              'By Pranson Chhetri',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.6),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                           ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 36),
+                    ],
                   ),
-                  FadeTransition(
-                    opacity: _loaderFade,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: 26,
-                          height: 26,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.6,
-                            valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(0.85)),
-                          ),
-                        ),
-                        const SizedBox(height: 28),
-                        Text(
-                          'By Pranson Chhetri',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 36),
-                ],
-              ),
+                ),
+              ],
             );
           },
-        ),
-          ],
         ),
       ),
     );
