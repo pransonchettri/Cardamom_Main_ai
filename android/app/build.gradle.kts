@@ -45,6 +45,7 @@ flutter {
 
 }
 dependencies {
-    // Add this line at the bottom of your dependencies block
-    implementation "androidx.concurrent:concurrent-futures:1.2.0"
+
+implementation("androidx.concurrent:concurrent-futures:1.2.0")
+
 }
