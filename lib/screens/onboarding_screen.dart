@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_ai/screens/root_shell.dart';
+import 'package:plant_ai/screens/sign_in_screen.dart';
+import 'package:plant_ai/services/auth_service.dart';
 import 'package:plant_ai/services/settings_controller.dart';
 import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/widgets/app_logo.dart';
@@ -45,9 +47,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _index = 0;
 
   void _finish() {
-    context.read<SettingsController>().setHasOnboarded(true);
+    final settings = context.read<SettingsController>();
+    settings.setHasOnboarded(true);
+
+    final auth = context.read<AuthService>();
+    final skipSignIn = settings.hasSeenSignIn || auth.isSignedIn;
+
     Navigator.of(context).pushReplacement(
-      AppRoute.to(const RootShell()),
+      AppRoute.to(skipSignIn ? const RootShell() : const SignInScreen()),
     );
   }
 

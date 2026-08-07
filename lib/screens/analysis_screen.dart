@@ -225,6 +225,19 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       return _simulateResult(imagePath);
     }
 
+    // Be honest when the model was genuinely torn between two symptom
+    // categories rather than quietly picking a winner and presenting
+    // it with false confidence.
+    String? secondaryDiseaseName;
+    final runnerUpCategory = category.runnerUpCategory;
+    if (category.isCloseCall && runnerUpCategory != null) {
+      final runnerUpId = PlantDiseaseLabelMapper.cardamomDiseaseIdForCategory(runnerUpCategory);
+      final runnerUpDisease = runnerUpId != null ? DiseasesData.byId(runnerUpId) : null;
+      if (runnerUpDisease != null && runnerUpDisease.id != disease.id) {
+        secondaryDiseaseName = runnerUpDisease.name;
+      }
+    }
+
     return ScanResult(
       id: id,
       imagePath: imagePath,
@@ -238,6 +251,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       isHealthy: false,
       isSimulated: false,
       rawModelLabel: aiResult.rawLabel,
+      secondaryDiseaseName: secondaryDiseaseName,
     );
   }
 

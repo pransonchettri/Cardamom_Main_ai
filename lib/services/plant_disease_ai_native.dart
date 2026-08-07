@@ -56,16 +56,17 @@ class PlantDiseaseAI {
   /// top predicted class + its softmax confidence, or null if the
   /// model isn't ready or the image couldn't be decoded.
   ///
-  /// Uses horizontal-flip test-time augmentation: the model runs
-  /// TWICE — once on the image as captured, once on its mirror
-  /// image — and the two 39-class probability distributions are
-  /// averaged before picking a result. This is a standard technique
-  /// for making small CNN classifiers like this one meaningfully
-  /// more robust to how the leaf happened to be oriented in the
-  /// photo, at the cost of one extra (cheap) forward pass. The full
-  /// averaged distribution is also returned via [AIInferenceResult.allScores]
-  /// so callers can aggregate confidence by symptom category instead
-  /// of trusting a single top-1 class.
+  /// Uses three-view test-time augmentation: the model runs on (1)
+  /// the image as captured, (2) its horizontal mirror, and (3) a
+  /// center crop zoomed in ~20% — since a hand-held photo often
+  /// doesn't perfectly frame just the symptom, a tighter center crop
+  /// can pick up detail the full frame dilutes. The three 39-class
+  /// probability distributions are averaged before picking a result.
+  /// This costs two extra (cheap, ~240KB model) forward passes for a
+  /// meaningfully steadier read. The full averaged distribution is
+  /// also returned via [AIInferenceResult.allScores] so callers can
+  /// aggregate confidence by symptom category instead of trusting a
+  /// single top-1 class.
   Future<AIInferenceResult?> classify(String imagePath) async {
     if (!_ready || _interpreter == null) return null;
 
@@ -79,14 +80,16 @@ class PlantDiseaseAI {
       // otherwise both "passes" below would silently run on the same
       // flipped image instead of one original + one mirrored.
       final flipped = img.flipHorizontal(img.Image.from(resized));
+      final centerCropped = _centerCrop(decoded);
 
       final scoresA = _runSinglePass(resized);
       final scoresB = _runSinglePass(flipped);
-      if (scoresA == null || scoresB == null) return null;
+      final scoresC = _runSinglePass(centerCropped);
+      if (scoresA == null || scoresB == null || scoresC == null) return null;
 
       final averaged = List<double>.generate(
         _labels.length,
-        (i) => (scoresA[i] + scoresB[i]) / 2.0,
+        (i) => (scoresA[i] + scoresB[i] + scoresC[i]) / 3.0,
       );
 
       var bestIndex = 0;
@@ -107,6 +110,21 @@ class PlantDiseaseAI {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Crops the central ~70% of the original (pre-resize) image, then
+  /// resizes that crop to the model's 200x200 input — a "zoomed in"
+  /// view that can surface symptom detail a full, loosely-framed
+  /// photo dilutes.
+  img.Image _centerCrop(img.Image original) {
+    final cropFraction = 0.7;
+    final cropW = (original.width * cropFraction).round();
+    final cropH = (original.height * cropFraction).round();
+    final x = ((original.width - cropW) / 2).round();
+    final y = ((original.height - cropH) / 2).round();
+
+    final cropped = img.copyCrop(original, x: x, y: y, width: cropW, height: cropH);
+    return img.copyResize(cropped, width: 200, height: 200);
   }
 
   /// Runs a single forward pass on an already-resized 200x200 image

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:plant_ai/models/disease.dart';
 import 'package:plant_ai/services/favorites_service.dart';
 import 'package:plant_ai/theme/app_theme.dart';
+import 'package:plant_ai/widgets/disease_leaf_illustration.dart';
 
 class DiseaseDetailScreen extends StatelessWidget {
   final Disease disease;
@@ -48,13 +49,17 @@ class DiseaseDetailScreen extends StatelessWidget {
                 ),
                 child: Center(
                   child: Container(
-                    width: 92,
-                    height: 92,
+                    width: 108,
+                    height: 108,
                     decoration: BoxDecoration(
-                      color: disease.accent.withOpacity(0.18),
+                      color: disease.accent.withOpacity(0.14),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(disease.icon, color: disease.accent, size: 42),
+                    child: DiseaseLeafIllustration(
+                      pattern: disease.symptomPattern,
+                      accent: disease.accent,
+                      size: 76,
+                    ),
                   ),
                 ),
               ),

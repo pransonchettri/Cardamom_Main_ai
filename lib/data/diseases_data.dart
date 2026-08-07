@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_ai/models/disease.dart';
+import 'package:plant_ai/widgets/disease_leaf_illustration.dart';
 
 /// Reference library of cardamom diseases shown in the Library screen
 /// and used to generate simulated analysis results. This is
@@ -11,6 +12,7 @@ class DiseasesData {
   static const List<Disease> all = [
     Disease(
       id: 'leaf_blight',
+      symptomPattern: SymptomPattern.blotches,
       name: 'Leaf Blight',
       shortDescription: 'Fungal leaf damage',
       emoji: '🍃',
@@ -41,6 +43,7 @@ class DiseasesData {
     ),
     Disease(
       id: 'capsule_rot',
+      symptomPattern: SymptomPattern.rotBase,
       name: 'Capsule Rot (Azhukal)',
       shortDescription: 'Capsule infection',
       emoji: '🟤',
@@ -71,6 +74,7 @@ class DiseasesData {
     ),
     Disease(
       id: 'rhizome_rot',
+      symptomPattern: SymptomPattern.rotBase,
       name: 'Rhizome Rot',
       shortDescription: 'Root & rhizome damage',
       emoji: '🌱',
@@ -101,6 +105,7 @@ class DiseasesData {
     ),
     Disease(
       id: 'katte_virus',
+      symptomPattern: SymptomPattern.mosaic,
       name: 'Katte (Mosaic) Disease',
       shortDescription: 'Viral mosaic pattern',
       emoji: '🟡',
@@ -131,6 +136,7 @@ class DiseasesData {
     ),
     Disease(
       id: 'leaf_spot',
+      symptomPattern: SymptomPattern.spots,
       name: 'Phyllosticta Leaf Spot',
       shortDescription: 'Minor leaf spotting',
       emoji: '🟢',

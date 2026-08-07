@@ -16,6 +16,7 @@ import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/utils/app_route.dart';
 import 'package:plant_ai/widgets/action_card.dart';
 import 'package:plant_ai/widgets/app_logo.dart';
+import 'package:plant_ai/widgets/banner_ad_card.dart';
 import 'package:plant_ai/widgets/disease_preview_card.dart';
 import 'package:plant_ai/widgets/plant_health_card.dart';
 import 'package:plant_ai/widgets/section_header.dart';
@@ -199,6 +200,8 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 25),
         TipBanner(message: tip).animate().fadeIn(delay: 560.ms, duration: 380.ms),
+        const SizedBox(height: 18),
+        const BannerAdCard(),
       ],
     );
   }

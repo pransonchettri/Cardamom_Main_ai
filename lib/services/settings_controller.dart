@@ -15,6 +15,7 @@ class SettingsController extends ChangeNotifier {
   static const _kHaptics = 'settings.haptics';
   static const _kScanningTips = 'settings.scanningTips';
   static const _kHasOnboarded = 'settings.hasOnboarded';
+  static const _kHasSeenSignIn = 'settings.hasSeenSignIn';
 
   ThemeMode _themeMode = ThemeMode.system;
   bool _autoAnalyze = false;
@@ -24,6 +25,7 @@ class SettingsController extends ChangeNotifier {
   bool _haptics = true;
   bool _scanningTips = true;
   bool _hasOnboarded = false;
+  bool _hasSeenSignIn = false;
   bool _loaded = false;
 
   ThemeMode get themeMode => _themeMode;
@@ -34,6 +36,7 @@ class SettingsController extends ChangeNotifier {
   bool get haptics => _haptics;
   bool get scanningTips => _scanningTips;
   bool get hasOnboarded => _hasOnboarded;
+  bool get hasSeenSignIn => _hasSeenSignIn;
   bool get loaded => _loaded;
 
   Future<void> load() async {
@@ -49,8 +52,16 @@ class SettingsController extends ChangeNotifier {
     _haptics = prefs.getBool(_kHaptics) ?? _haptics;
     _scanningTips = prefs.getBool(_kScanningTips) ?? _scanningTips;
     _hasOnboarded = prefs.getBool(_kHasOnboarded) ?? _hasOnboarded;
+    _hasSeenSignIn = prefs.getBool(_kHasSeenSignIn) ?? _hasSeenSignIn;
     _loaded = true;
     notifyListeners();
+  }
+
+  Future<void> setHasSeenSignIn(bool value) async {
+    _hasSeenSignIn = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kHasSeenSignIn, value);
   }
 
   Future<void> setHasOnboarded(bool value) async {

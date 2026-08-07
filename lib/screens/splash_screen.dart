@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_ai/screens/onboarding_screen.dart';
 import 'package:plant_ai/screens/root_shell.dart';
+import 'package:plant_ai/screens/sign_in_screen.dart';
+import 'package:plant_ai/services/auth_service.dart';
 import 'package:plant_ai/services/settings_controller.dart';
 import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/widgets/app_logo.dart';
@@ -55,8 +57,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
 
-    final hasOnboarded = context.read<SettingsController>().hasOnboarded;
-    final next = hasOnboarded ? const RootShell() : const OnboardingScreen();
+    final settings = context.read<SettingsController>();
+    final auth = context.read<AuthService>();
+
+    Widget next;
+    if (!settings.hasOnboarded) {
+      next = const OnboardingScreen();
+    } else if (!settings.hasSeenSignIn && !auth.isSignedIn) {
+      next = const SignInScreen();
+    } else {
+      next = const RootShell();
+    }
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
@@ -91,45 +102,52 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             return SafeArea(
               child: Column(
                 children: [
-                  const Spacer(flex: 3),
-                  FadeTransition(
-                    opacity: _logoFade,
-                    child: ScaleTransition(
-                      scale: _logoScale,
-                      child: const AppLogoMark(size: 108, iconScale: 0.5),
-                    ),
-                  ),
-                  const SizedBox(height: 26),
-                  FadeTransition(
-                    opacity: _textFade,
-                    child: SlideTransition(
-                      position: _textSlide,
-                      child: const Column(
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'CardamomAI',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.3,
+                          FadeTransition(
+                            opacity: _logoFade,
+                            child: ScaleTransition(
+                              scale: _logoScale,
+                              child: const AppLogoMark(size: 108, iconScale: 0.5),
                             ),
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Smart crop protection',
-                            style: TextStyle(
-                              color: Color(0xFFC9F7D1),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.4,
+                          const SizedBox(height: 26),
+                          FadeTransition(
+                            opacity: _textFade,
+                            child: SlideTransition(
+                              position: _textSlide,
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    'CardamomAI',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Smart crop protection',
+                                    style: TextStyle(
+                                      color: Color(0xFFC9F7D1),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const Spacer(flex: 3),
                   FadeTransition(
                     opacity: _loaderFade,
                     child: Column(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_ai/models/disease.dart';
 import 'package:plant_ai/theme/app_theme.dart';
+import 'package:plant_ai/widgets/disease_leaf_illustration.dart';
 
 class DiseasePreviewCard extends StatelessWidget {
   final Disease disease;
@@ -28,14 +29,18 @@ class DiseasePreviewCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: 54,
+                height: 54,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: disease.accent.withOpacity(context.isDark ? 0.22 : 0.14),
-                  borderRadius: BorderRadius.circular(15),
+                  color: disease.accent.withOpacity(context.isDark ? 0.16 : 0.10),
+                  shape: BoxShape.circle,
                 ),
-                child: Icon(disease.icon, color: disease.accent, size: 24),
+                child: DiseaseLeafIllustration(
+                  pattern: disease.symptomPattern,
+                  accent: disease.accent,
+                  size: 38,
+                ),
               ),
               const Spacer(),
               Text(

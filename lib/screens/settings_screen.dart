@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:plant_ai/screens/credits_screen.dart';
+import 'package:plant_ai/screens/sign_in_screen.dart';
+import 'package:plant_ai/services/auth_service.dart';
 import 'package:plant_ai/services/history_service.dart';
 import 'package:plant_ai/services/settings_controller.dart';
 import 'package:plant_ai/theme/app_theme.dart';
@@ -102,6 +104,10 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+          Text('Account', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: context.primaryText)),
+          const SizedBox(height: 9),
+          const _AccountSection(),
+          const SizedBox(height: 20),
           Text('Appearance', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: context.primaryText)),
           const SizedBox(height: 10),
           _ThemeModeSelector(settings: settings),
@@ -273,6 +279,89 @@ class _ThemeModeSelector extends StatelessWidget {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+}
+
+class _AccountSection extends StatelessWidget {
+  const _AccountSection();
+
+  Future<void> _signOut(BuildContext context, AuthService auth) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Sign out?'),
+        content: const Text('You can sign back in anytime — nothing on this device is removed.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Sign out')),
+        ],
+      ),
+    );
+    if (confirmed == true) await auth.signOut();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthService>();
+
+    if (!auth.isAvailable) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.mutedColor,
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline_rounded, size: 18, color: context.secondaryText),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Sign-in isn\'t set up for this build yet. Everything else works normally.',
+                style: TextStyle(fontSize: 12, color: context.secondaryText),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (!auth.isSignedIn) {
+      return SettingsActionTile(
+        icon: Icons.login_rounded,
+        title: 'Sign in',
+        subtitle: 'Optional — with Google or your phone number',
+        onTap: () => Navigator.push(context, AppRoute.to(const SignInScreen())),
+      );
+    }
+
+    final user = auth.currentUser!;
+    final label = user.displayName ?? user.email ?? user.phoneNumber ?? 'Signed in';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: context.cardColor,
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(color: context.borderColor),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        leading: CircleAvatar(
+          radius: 21,
+          backgroundColor: AppColors.emeraldLight.withOpacity(0.16),
+          backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+          child: user.photoURL == null
+              ? const Icon(Icons.person_rounded, color: AppColors.emeraldLight)
+              : null,
+        ),
+        title: Text(label, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: context.primaryText)),
+        subtitle: Text('Signed in', style: TextStyle(fontSize: 11.5, color: context.secondaryText)),
+        trailing: TextButton(
+          onPressed: () => _signOut(context, auth),
+          child: const Text('Sign out', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w700)),
+        ),
       ),
     );
   }

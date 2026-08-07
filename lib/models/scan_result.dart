@@ -23,6 +23,12 @@ class ScanResult {
   final bool isSimulated;
   final String? rawModelLabel;
 
+  /// When the model was genuinely torn between two symptom
+  /// categories (see [CategoryResult.isCloseCall]), this names the
+  /// runner-up disease so the Result screen can be honest about the
+  /// uncertainty instead of presenting one pick with false certainty.
+  final String? secondaryDiseaseName;
+
   ScanResult({
     required this.id,
     required this.imagePath,
@@ -37,6 +43,7 @@ class ScanResult {
     this.isInconclusive = false,
     this.isSimulated = false,
     this.rawModelLabel,
+    this.secondaryDiseaseName,
   });
 
   String get confidencePercent => '${(confidence * 100).round()}%';

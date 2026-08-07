@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plant_ai/widgets/disease_leaf_illustration.dart';
 
 enum DiseaseSeverity { none, low, medium, high }
 
@@ -41,6 +42,7 @@ class Disease {
   final IconData icon;
   final Color accent;
   final DiseaseSeverity typicalSeverity;
+  final SymptomPattern symptomPattern;
   final String overview;
   final List<String> symptoms;
   final List<String> causes;
@@ -54,6 +56,7 @@ class Disease {
     required this.icon,
     required this.accent,
     required this.typicalSeverity,
+    required this.symptomPattern,
     required this.overview,
     required this.symptoms,
     required this.causes,

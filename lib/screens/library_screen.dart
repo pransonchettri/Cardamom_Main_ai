@@ -7,6 +7,7 @@ import 'package:plant_ai/screens/disease_detail_screen.dart';
 import 'package:plant_ai/services/favorites_service.dart';
 import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/utils/app_route.dart';
+import 'package:plant_ai/widgets/disease_leaf_illustration.dart';
 
 class LibraryScreen extends StatefulWidget {
   final bool startWithFavorites;
@@ -197,10 +198,14 @@ class _DiseaseListTile extends StatelessWidget {
           width: 46,
           height: 46,
           decoration: BoxDecoration(
-            color: disease.accent.withOpacity(context.isDark ? 0.22 : 0.14),
-            borderRadius: BorderRadius.circular(14),
+            color: disease.accent.withOpacity(context.isDark ? 0.16 : 0.10),
+            shape: BoxShape.circle,
           ),
-          child: Icon(disease.icon, color: disease.accent),
+          child: DiseaseLeafIllustration(
+            pattern: disease.symptomPattern,
+            accent: disease.accent,
+            size: 32,
+          ),
         ),
         title: Text(disease.name, style: TextStyle(fontWeight: FontWeight.w800, color: context.primaryText)),
         subtitle: Text(disease.shortDescription, style: TextStyle(fontSize: 12, color: context.secondaryText)),

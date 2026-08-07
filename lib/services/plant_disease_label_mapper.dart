@@ -71,7 +71,9 @@ class PlantDiseaseLabelMapper {
   /// symptom-category buckets (healthy / background / blight / rot /
   /// spot / virus) by summing the probability of every class that
   /// falls into each category, then returns the category with the
-  /// highest total probability mass.
+  /// highest total probability mass — and the runner-up, so callers
+  /// can tell a confident read apart from a genuinely close call
+  /// instead of presenting every result with the same false certainty.
   ///
   /// This is meaningfully more robust than trusting a single top-1
   /// class: e.g. if "tomato early blight", "potato early blight" and
@@ -79,7 +81,7 @@ class PlantDiseaseLabelMapper {
   /// because they're splitting probability with each other, a naive
   /// top-1 pick could lose to something unrelated at 25%. Summed
   /// together, that 45–60% of blight-pattern probability mass
-  /// correctly dominates. Combined with the flip-based test-time
+  /// correctly dominates. Combined with the multi-view test-time
   /// averaging in [PlantDiseaseAI], this is the "smarter, not
   /// fabricated" accuracy improvement — it uses strictly more of the
   /// real model's own output, not invented signal.
@@ -92,21 +94,55 @@ class PlantDiseaseLabelMapper {
 
     var bestCategory = 'spot';
     var bestTotal = -1.0;
+    String? runnerUpCategory;
+    var runnerUpTotal = -1.0;
+
     totals.forEach((category, total) {
       if (total > bestTotal) {
-        bestTotal = total;
+        runnerUpCategory = bestCategory;
+        runnerUpTotal = bestTotal;
         bestCategory = category;
+        bestTotal = total;
+      } else if (total > runnerUpTotal) {
+        runnerUpCategory = category;
+        runnerUpTotal = total;
       }
     });
 
-    return CategoryResult(category: bestCategory, confidence: bestTotal.clamp(0.0, 1.0));
+    return CategoryResult(
+      category: bestCategory,
+      confidence: bestTotal.clamp(0.0, 1.0),
+      runnerUpCategory: runnerUpTotal < 0 ? null : runnerUpCategory,
+      runnerUpConfidence: runnerUpTotal < 0 ? null : runnerUpTotal.clamp(0.0, 1.0),
+    );
   }
 }
 
 /// Result of aggregating model scores into symptom-category buckets.
+///
+/// [runnerUpCategory] / [runnerUpConfidence] describe the second-best
+/// category, when there is one — useful for telling a confident read
+/// apart from a genuinely close call between two symptom patterns.
 class CategoryResult {
   final String category;
   final double confidence;
+  final String? runnerUpCategory;
+  final double? runnerUpConfidence;
 
-  const CategoryResult({required this.category, required this.confidence});
+  const CategoryResult({
+    required this.category,
+    required this.confidence,
+    this.runnerUpCategory,
+    this.runnerUpConfidence,
+  });
+
+  /// True when the runner-up is close enough to the winner that
+  /// presenting only the top pick would overstate how sure the model
+  /// really is (within 12 percentage points of aggregated probability
+  /// mass).
+  bool get isCloseCall {
+    final gap = runnerUpConfidence;
+    if (gap == null) return false;
+    return (confidence - gap) < 0.12;
+  }
 }

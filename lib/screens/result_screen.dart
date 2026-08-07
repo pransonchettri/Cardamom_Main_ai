@@ -124,6 +124,10 @@ class ResultScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
+            if (result.secondaryDiseaseName != null) ...[
+              _SecondOpinionNote(alternativeName: result.secondaryDiseaseName!),
+              const SizedBox(height: 16),
+            ],
             _ResultSection(
               title: 'Symptoms observed',
               icon: Icons.visibility_rounded,
@@ -233,6 +237,37 @@ class _SeverityBadge extends StatelessWidget {
           Text(
             '${severity.label} severity',
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11.5),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SecondOpinionNote extends StatelessWidget {
+  final String alternativeName;
+
+  const _SecondOpinionNote({required this.alternativeName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      decoration: BoxDecoration(
+        color: AppColors.warmAccent.withOpacity(context.isDark ? 0.12 : 0.10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.warmAccent.withOpacity(0.28)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.balance_rounded, size: 17, color: AppColors.warmAccentDeep),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'This was a close call — $alternativeName showed a similar pattern match. Worth comparing both in the Library.',
+              style: TextStyle(fontSize: 11.5, color: context.secondaryText, height: 1.4),
+            ),
           ),
         ],
       ),
