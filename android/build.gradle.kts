@@ -19,25 +19,24 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// Force a consistent Kotlin JVM target across every subproject, including
-// third-party plugins we can't otherwise edit.
+// Force every plugin module (everything except :app, which is already
+// correctly configured and gets evaluated too early for afterEvaluate to
+// be safe on it) to match Java 17 / Kotlin 17 AFTER each plugin's own
+// build script has finished running — so our value is the final word,
+// not something the plugin's own script can silently overwrite.
 subprojects {
-    tasks.withType<KotlinCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
-}
-
-// Force a consistent Java target for every Android *library* module
-// specifically (third-party Flutter plugins compile as Android libraries,
-// not applications) using the more specific LibraryExtension type.
-allprojects {
-    pluginManager.withPlugin("com.android.library") {
-        extensions.configure<com.android.build.gradle.LibraryExtension> {
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
+    if (project.name != "app") {
+        afterEvaluate {
+            extensions.findByType<com.android.build.gradle.BaseExtension>()?.apply {
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_17
+                    targetCompatibility = JavaVersion.VERSION_17
+                }
+            }
+            tasks.withType<KotlinCompile>().configureEach {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_17)
+                }
             }
         }
     }
