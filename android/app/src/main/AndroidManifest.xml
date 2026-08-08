@@ -2,7 +2,7 @@
 <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
-        android:label="plant_ai"
+        android:label="CardamomAI"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -33,22 +33,32 @@
             android:name="flutterEmbedding"
             android:value="2" />
         <!-- Required by Google Mobile Ads SDK - without this the app crashes
-             on launch. This is Google's official TEST App ID (safe for
-             development, earns nothing). Replace with your own real AdMob
-             App ID before a real release. -->
+             on launch. This is CardamomAI's real AdMob App ID (created in
+             the AdMob console) - real ads, real revenue. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-2289058620170250~5756686688"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <!-- Required for url_launcher's mailto: link (Settings -> Send feedback)
+         to resolve on Android 11+ (API 30+), which hides package visibility
+         by default - see https://developer.android.com/training/package-visibility.
+         Without this entry, launchUrl() for a mailto: URI can silently fail
+         even with a mail app installed. https:// links (Rate CardamomAI)
+         don't need an entry here; browsable web intents aren't restricted
+         the same way. -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
         </intent>
     </queries>
 </manifest>

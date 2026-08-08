@@ -51,6 +51,8 @@ class ActionCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 14,
@@ -60,6 +62,8 @@ class ActionCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 11.5, color: context.secondaryText),
               ),
             ],

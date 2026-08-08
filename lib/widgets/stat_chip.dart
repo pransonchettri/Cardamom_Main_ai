@@ -32,11 +32,15 @@ class StatChip extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: context.primaryText),
             ),
             const SizedBox(height: 2),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 10.5, color: context.secondaryText, fontWeight: FontWeight.w600),
             ),

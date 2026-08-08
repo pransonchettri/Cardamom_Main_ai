@@ -32,9 +32,10 @@ Future<void> main() async {
   final favorites = FavoritesService();
   final checklist = ChecklistService();
   final auth = AuthService();
-  await Future.wait([settings.load(), favorites.load(), checklist.load()]);
+  final history = HistoryService();
+  await Future.wait([settings.load(), favorites.load(), checklist.load(), history.load()]);
 
-  runApp(CardamomAI(settings: settings, favorites: favorites, checklist: checklist, auth: auth));
+  runApp(CardamomAI(settings: settings, favorites: favorites, checklist: checklist, auth: auth, history: history));
 }
 
 class CardamomAI extends StatelessWidget {
@@ -42,6 +43,7 @@ class CardamomAI extends StatelessWidget {
   final FavoritesService favorites;
   final ChecklistService checklist;
   final AuthService auth;
+  final HistoryService history;
 
   const CardamomAI({
     super.key,
@@ -49,6 +51,7 @@ class CardamomAI extends StatelessWidget {
     required this.favorites,
     required this.checklist,
     required this.auth,
+    required this.history,
   });
 
   @override
@@ -59,7 +62,7 @@ class CardamomAI extends StatelessWidget {
         ChangeNotifierProvider<FavoritesService>.value(value: favorites),
         ChangeNotifierProvider<ChecklistService>.value(value: checklist),
         ChangeNotifierProvider<AuthService>.value(value: auth),
-        ChangeNotifierProvider<HistoryService>(create: (_) => HistoryService()),
+        ChangeNotifierProvider<HistoryService>.value(value: history),
       ],
       child: Consumer<SettingsController>(
         builder: (context, settings, _) {
@@ -69,6 +72,22 @@ class CardamomAI extends StatelessWidget {
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             themeMode: settings.themeMode,
+            // Every layout in this app is hand-tuned around a normal text
+            // scale. Devices with a large system font-size setting (very
+            // common — plenty of real users, and a plausible chunk of a
+            // farming-focused app's audience, bump this up) could otherwise
+            // push fixed-height cards and nav bars into a real "bottom
+            // overflowed by N pixels" error. Clamping keeps the app
+            // readable at larger scales without letting it break layout.
+            builder: (context, child) {
+              final mediaQuery = MediaQuery.of(context);
+              return MediaQuery(
+                data: mediaQuery.copyWith(
+                  textScaler: mediaQuery.textScaler.clamp(minScaleFactor: 0.9, maxScaleFactor: 1.25),
+                ),
+                child: child!,
+              );
+            },
             home: const SplashScreen(),
           );
         },

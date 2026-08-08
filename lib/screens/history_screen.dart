@@ -7,6 +7,7 @@ import 'package:plant_ai/screens/scan_screen.dart';
 import 'package:plant_ai/services/history_service.dart';
 import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/widgets/app_image.dart';
+import 'package:plant_ai/widgets/banner_ad_card.dart';
 import 'package:plant_ai/widgets/empty_state.dart';
 import 'package:plant_ai/widgets/stat_chip.dart';
 import 'package:plant_ai/utils/app_route.dart';
@@ -64,12 +65,18 @@ class HistoryScreen extends StatelessWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-              itemCount: history.items.length + 1,
+              itemCount: history.items.length + 2,
               itemBuilder: (context, i) {
                 if (i == 0) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 18),
                     child: _HistoryStatsRow(items: history.items),
+                  );
+                }
+                if (i == history.items.length + 1) {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: BannerAdCard(),
                   );
                 }
                 return _HistoryTile(result: history.items[i - 1]);

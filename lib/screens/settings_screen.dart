@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:plant_ai/screens/credits_screen.dart';
+import 'package:plant_ai/screens/privacy_policy_screen.dart';
 import 'package:plant_ai/screens/sign_in_screen.dart';
 import 'package:plant_ai/services/auth_service.dart';
 import 'package:plant_ai/services/history_service.dart';
 import 'package:plant_ai/services/settings_controller.dart';
 import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/utils/haptics.dart';
+import 'package:plant_ai/widgets/banner_ad_card.dart';
 import 'package:plant_ai/widgets/settings_tiles.dart';
 import 'package:plant_ai/utils/app_route.dart';
+
+// TODO: once this app has a real Play Store listing, swap this for the
+// real package name if it changes from com.example.plant_ai.
+const _kPlayStoreUrl = 'https://play.google.com/store/apps/details?id=com.example.plant_ai';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -43,6 +51,40 @@ class SettingsScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Settings restored to default.')));
   }
 
+  Future<void> _rateApp(BuildContext context) async {
+    final uri = Uri.parse(_kPlayStoreUrl);
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((_) => false);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('CardamomAI isn\'t published on the Play Store yet.')),
+      );
+    }
+  }
+
+  Future<void> _shareApp(BuildContext context) async {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: 'I\'ve been using CardamomAI to check my cardamom plants for disease signs — '
+            'worth a try if you grow cardamom too: $_kPlayStoreUrl',
+        subject: 'CardamomAI — cardamom plant disease scanner',
+      ),
+    );
+  }
+
+  Future<void> _sendFeedback(BuildContext context) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: 'pransonchettri7@gmail.com',
+      query: 'subject=${Uri.encodeComponent('CardamomAI feedback')}',
+    );
+    final launched = await launchUrl(uri).catchError((_) => false);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No email app found. Reach out at pransonchettri7@gmail.com.')),
+      );
+    }
+  }
+
   void _showAbout(BuildContext context) {
     showAboutDialog(
       context: context,
@@ -62,8 +104,10 @@ class SettingsScreen extends StatelessWidget {
         SizedBox(height: 12),
         Text(
           'CardamomAI is an AI-assisted cardamom plant disease detection app. '
-          'Analysis is currently simulated for preview purposes; a trained '
-          'detection model will be connected in a future update.',
+          'Scans run a real on-device model (not a cloud service, not simulated) '
+          'trained on a general plant-disease dataset — not cardamom specifically — '
+          'so treat every result as a helpful pointer rather than a lab-confirmed '
+          'diagnosis.',
         ),
       ],
     );
@@ -194,6 +238,27 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _resetSettings(context),
           ),
           const SizedBox(height: 20),
+          Text('Support us', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: context.primaryText)),
+          const SizedBox(height: 9),
+          SettingsActionTile(
+            icon: Icons.star_rate_rounded,
+            title: 'Rate CardamomAI',
+            subtitle: 'Leave a rating on the Play Store',
+            onTap: () => _rateApp(context),
+          ),
+          SettingsActionTile(
+            icon: Icons.ios_share_rounded,
+            title: 'Share with a friend',
+            subtitle: 'Know another cardamom grower? Pass it along',
+            onTap: () => _shareApp(context),
+          ),
+          SettingsActionTile(
+            icon: Icons.feedback_outlined,
+            title: 'Send feedback',
+            subtitle: 'Report a bug or suggest an improvement',
+            onTap: () => _sendFeedback(context),
+          ),
+          const SizedBox(height: 20),
           Text('About', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: context.primaryText)),
           const SizedBox(height: 9),
           SettingsActionTile(
@@ -208,6 +273,12 @@ class SettingsScreen extends StatelessWidget {
             subtitle: 'Meet the people behind this app',
             onTap: () => Navigator.push(context, AppRoute.to(const CreditsScreen())),
           ),
+          SettingsActionTile(
+            icon: Icons.privacy_tip_outlined,
+            title: 'Privacy Policy',
+            subtitle: 'What data CardamomAI does (and doesn\'t) use',
+            onTap: () => Navigator.push(context, AppRoute.to(const PrivacyPolicyScreen())),
+          ),
           const SizedBox(height: 18),
           Center(
             child: GestureDetector(
@@ -218,6 +289,8 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          const BannerAdCard(),
         ],
       ),
     );

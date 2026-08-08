@@ -7,6 +7,7 @@ import 'package:plant_ai/screens/disease_detail_screen.dart';
 import 'package:plant_ai/services/favorites_service.dart';
 import 'package:plant_ai/theme/app_theme.dart';
 import 'package:plant_ai/utils/app_route.dart';
+import 'package:plant_ai/widgets/banner_ad_card.dart';
 import 'package:plant_ai/widgets/disease_leaf_illustration.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -168,6 +169,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
             )
           else
             ...results.map((d) => _DiseaseListTile(disease: d)),
+          const SizedBox(height: 8),
+          const BannerAdCard(),
         ],
       ),
     );

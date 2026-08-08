@@ -42,6 +42,25 @@ subprojects {
     }
 }
 
+// camera_android_camerax fails to compile on its own without this:
+// "Cannot attach type annotations @org.jspecify.annotations.NonNull to
+// SurfaceRequest.mSurfaceRecreationCompleter: class file for
+// androidx.concurrent.futures.CallbackToFutureAdapter not found".
+// camera-core's Maven POM declares concurrent-futures as runtime-scope only,
+// which isn't enough for javac to resolve JSpecify type annotations at
+// compile time for THIS module's own build. A previous fix added this same
+// dependency to android/app/build.gradle.kts instead - that has no effect
+// here, since :app's dependencies don't reach backward into how a separate
+// Gradle subproject compiles its own sources. It has to be declared on the
+// subproject that actually fails to compile.
+subprojects {
+    if (project.name == "camera_android_camerax") {
+        afterEvaluate {
+            dependencies.add("implementation", "androidx.concurrent:concurrent-futures:1.2.0")
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }

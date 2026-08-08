@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_ai/theme/app_theme.dart';
+import 'package:plant_ai/widgets/banner_ad_card.dart';
 import 'package:plant_ai/widgets/care_checklist_card.dart';
 
 class _CareSection {
@@ -94,6 +95,8 @@ class CareGuideScreen extends StatelessWidget {
           const CareChecklistCard(),
           const SizedBox(height: 20),
           ..._sections.map((s) => _CareSectionCard(section: s)),
+          const SizedBox(height: 4),
+          const BannerAdCard(),
         ],
       ),
     );

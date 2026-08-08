@@ -65,12 +65,48 @@ class _SignInScreenState extends State<SignInScreen> {
       } else {
         setState(() => _googleLoading = false);
       }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _googleLoading = false;
+        _error = _messageForAuthError(e);
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _googleLoading = false;
-        _error = 'Google sign-in didn\'t go through. Please try again.';
+        // Most commonly a PlatformException from google_sign_in itself
+        // (e.g. no matching OAuth client registered for this app's
+        // package name + SHA-1 in the Firebase console yet) rather than
+        // a FirebaseAuthException — still worth naming as a setup issue
+        // rather than a vague "try again", since retrying won't help.
+        final text = e.toString().toLowerCase();
+        _error = text.contains('developer_error') || text.contains('10:') || text.contains('sha')
+            ? 'Google sign-in isn\'t fully configured yet for this build (missing SHA-1 fingerprint in the Firebase console). This is a setup issue, not something retrying will fix.'
+            : 'Google sign-in didn\'t go through. Please try again.';
       });
+    }
+  }
+
+  /// Turns a [FirebaseAuthException] code into a message that tells the
+  /// difference between "this is a setup problem you (the developer)
+  /// need to fix in the Firebase console" and "this is a normal,
+  /// retry-able failure" — the two were previously shown identically as
+  /// a generic "try again", which is actively misleading for the first
+  /// case since retrying can never fix it.
+  String _messageForAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'operation-not-allowed':
+        return 'Google sign-in isn\'t enabled yet for this project (Firebase Console → Authentication → Sign-in method). This won\'t fix itself by retrying.';
+      case 'invalid-credential':
+      case 'account-exists-with-different-credential':
+        return 'That Google account is already linked to a different sign-in method here.';
+      case 'network-request-failed':
+        return 'No internet connection — check your connection and try again.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      default:
+        return e.message ?? 'Google sign-in didn\'t go through. Please try again.';
     }
   }
 
@@ -136,9 +172,14 @@ class _SignInScreenState extends State<SignInScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(26, 20, 26, 26),
-          child: Column(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(26, 20, 26, 26),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 46),
+                child: IntrinsicHeight(
+                  child: Column(
             children: [
               Align(
                 alignment: Alignment.topRight,
@@ -250,7 +291,11 @@ class _SignInScreenState extends State<SignInScreen> {
                 style: TextStyle(color: context.secondaryText, fontSize: 10.5),
               ),
             ],
-          ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

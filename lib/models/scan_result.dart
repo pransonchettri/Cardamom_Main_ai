@@ -47,4 +47,52 @@ class ScanResult {
   });
 
   String get confidencePercent => '${(confidence * 100).round()}%';
+
+  /// Serializes this result for local persistence (see [HistoryService]).
+  /// Only plain JSON-safe types — no [DiseaseSeverity] enum object, no
+  /// [DateTime] object — so this round-trips cleanly through
+  /// `jsonEncode`/`jsonDecode` and SharedPreferences' string storage.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'imagePath': imagePath,
+        'diseaseName': diseaseName,
+        'diseaseId': diseaseId,
+        'confidence': confidence,
+        'severity': severity.name,
+        'symptoms': symptoms,
+        'recommendations': recommendations,
+        'timestamp': timestamp.toIso8601String(),
+        'isHealthy': isHealthy,
+        'isInconclusive': isInconclusive,
+        'isSimulated': isSimulated,
+        'rawModelLabel': rawModelLabel,
+        'secondaryDiseaseName': secondaryDiseaseName,
+      };
+
+  /// Rebuilds a [ScanResult] from [toJson] output. Returns null instead
+  /// of throwing if a saved record is malformed or from an incompatible
+  /// future/past app version — one bad record should never crash the
+  /// whole history list, just get silently skipped.
+  static ScanResult? fromJson(Map<String, dynamic> json) {
+    try {
+      return ScanResult(
+        id: json['id'] as String,
+        imagePath: json['imagePath'] as String,
+        diseaseName: json['diseaseName'] as String,
+        diseaseId: json['diseaseId'] as String?,
+        confidence: (json['confidence'] as num).toDouble(),
+        severity: DiseaseSeverity.values.byName(json['severity'] as String),
+        symptoms: (json['symptoms'] as List).cast<String>(),
+        recommendations: (json['recommendations'] as List).cast<String>(),
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        isHealthy: json['isHealthy'] as bool,
+        isInconclusive: json['isInconclusive'] as bool? ?? false,
+        isSimulated: json['isSimulated'] as bool? ?? false,
+        rawModelLabel: json['rawModelLabel'] as String?,
+        secondaryDiseaseName: json['secondaryDiseaseName'] as String?,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 }

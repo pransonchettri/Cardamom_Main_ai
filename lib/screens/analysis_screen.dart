@@ -171,6 +171,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     final isLowConfidence = category.confidence < _kLowConfidenceRejectThreshold;
 
     if (isBackgroundGuess || isLowConfidence) {
+      // When a pre-inference brightness check also flagged this photo,
+      // give specific, actionable feedback instead of generic framing
+      // tips — a dark or blown-out photo is a very fixable reason for
+      // an inconclusive read, and worth naming directly.
+      final quality = aiResult.qualityWarning;
+      final isDark = quality == 'dark';
+      final isBright = quality == 'bright';
+
       return ScanResult(
         id: id,
         imagePath: imagePath,
@@ -178,14 +186,27 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         diseaseId: null,
         confidence: category.confidence,
         severity: DiseaseSeverity.none,
-        symptoms: const [
+        symptoms: [
           'CardamomAI could not confidently match this photo to a plant leaf pattern',
-          'This can happen if the photo isn\'t a cardamom leaf, or the leaf isn\'t clearly visible',
+          if (isDark)
+            'This photo looks quite dark — low light makes leaf detail hard to distinguish'
+          else if (isBright)
+            'This photo looks very bright or washed out — glare and overexposure hide leaf detail'
+          else
+            'This can happen if the photo isn\'t a cardamom leaf, or the leaf isn\'t clearly visible',
         ],
-        recommendations: const [
-          'Make sure you\'re photographing a cardamom leaf or capsule',
-          'Fill more of the frame with the leaf, avoiding other objects',
-          'Use even, natural daylight and hold the camera steady',
+        recommendations: [
+          if (isDark) ...[
+            'Retake in brighter, even daylight rather than indoor or evening light',
+            'Avoid deep shadow falling across the leaf',
+          ] else if (isBright) ...[
+            'Retake out of direct sun or without flash to avoid glare',
+            'Try a spot with soft, even light instead of harsh direct rays',
+          ] else ...[
+            'Make sure you\'re photographing a cardamom leaf or capsule',
+            'Fill more of the frame with the leaf, avoiding other objects',
+            'Use even, natural daylight and hold the camera steady',
+          ],
           'Avoid busy or cluttered backgrounds',
         ],
         timestamp: now,

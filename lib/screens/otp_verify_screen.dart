@@ -74,7 +74,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Verify your number', style: TextStyle(fontWeight: FontWeight.w800))),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(26, 20, 26, 26),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

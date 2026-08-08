@@ -76,6 +76,7 @@ class PlantDiseaseAI {
       if (decoded == null) return null;
 
       final resized = img.copyResize(decoded, width: 200, height: 200);
+      final qualityWarning = _assessQuality(resized);
       // flipHorizontal mutates its argument in place, so clone first -
       // otherwise both "passes" below would silently run on the same
       // flipped image instead of one original + one mirrored.
@@ -106,10 +107,36 @@ class PlantDiseaseAI {
         confidence: bestScore,
         allScores: averaged,
         labels: _labels,
+        qualityWarning: qualityWarning,
       );
     } catch (_) {
       return null;
     }
+  }
+
+  /// Cheap pre-inference photo-quality heuristic: average pixel
+  /// brightness across the resized frame. Not a substitute for real
+  /// blur/exposure detection, but catches the two most common reasons
+  /// a farmer's phone photo comes out unusable — deep shadow/backlight,
+  /// or flash/direct-sun glare — cheaply enough to run on every scan.
+  String? _assessQuality(img.Image resized) {
+    var total = 0.0;
+    var sampleCount = 0;
+    // Every 3rd pixel is plenty to estimate overall brightness and
+    // keeps this effectively free next to the model inference itself.
+    for (var y = 0; y < resized.height; y += 3) {
+      for (var x = 0; x < resized.width; x += 3) {
+        final pixel = resized.getPixel(x, y);
+        total += (pixel.r + pixel.g + pixel.b) / 3.0;
+        sampleCount++;
+      }
+    }
+    if (sampleCount == 0) return null;
+    final avgBrightness = total / sampleCount; // 0-255
+
+    if (avgBrightness < 40) return 'dark';
+    if (avgBrightness > 235) return 'bright';
+    return null;
   }
 
   /// Crops the central ~70% of the original (pre-resize) image, then

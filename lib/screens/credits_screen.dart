@@ -105,8 +105,27 @@ class CreditsScreen extends StatelessWidget {
                       meta: 'KPTGSS',
                       delay: 900,
                     ),
+                    const SizedBox(height: 34),
+                    Text(
+                      'SUPPORTED BY',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.55),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2.2,
+                      ),
+                    ).animate().fadeIn(delay: 980.ms, duration: 400.ms),
+                    const SizedBox(height: 14),
+                    const _CreditCard(
+                      icon: Icons.volunteer_activism_rounded,
+                      iconColor: AppColors.warmAccent,
+                      name: 'Shabnam Golay',
+                      role: 'Headmistress · a super supporter and help',
+                      meta: 'KPTGSS',
+                      delay: 1050,
+                    ),
                     const SizedBox(height: 40),
-                    _GrowingDivider(delay: 1050.ms),
+                    _GrowingDivider(delay: 1200.ms),
                     const SizedBox(height: 24),
                     const _HeartFooter(),
                   ],
@@ -276,6 +295,6 @@ class _HeartFooter extends StatelessWidget {
           style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 10.5, fontWeight: FontWeight.w600),
         ),
       ],
-    ).animate().fadeIn(delay: 1150.ms, duration: 500.ms);
+    ).animate().fadeIn(delay: 1350.ms, duration: 500.ms);
   }
 }

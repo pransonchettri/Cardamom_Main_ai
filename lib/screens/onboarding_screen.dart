@@ -102,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onPageChanged: (i) => setState(() => _index = i),
                   itemBuilder: (context, i) {
                     final page = _pages[i];
-                    return Padding(
+                    return SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
